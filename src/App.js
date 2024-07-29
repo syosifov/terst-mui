@@ -1,5 +1,7 @@
 import Home from "./pages/Home";
-import Table from "./pages/Table";
+import ProductDetails from "./pages/ProductDetails";
+import Products from "./pages/Products";
+import PageNotFound from "./pages/PageNotFound"
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
 function App() {
@@ -8,7 +10,10 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/table" element={<Table />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/product-details/:id" element={<ProductDetails />} />
+
+          <Route path="/*" element={<PageNotFound />} />
         </Routes>
       </Router>
     </>

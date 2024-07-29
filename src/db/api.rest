@@ -1,3 +1,7 @@
 # Needs VSCode Rest Client to run.
 
-GET https://dummyjson.com/products?select=title,category,price,rating,brand
+GET https://dummyjson.com/products?select=title,category,price,rating,brand&limit=1000
+
+###
+
+GET https://dummyjson.com/products?select=id
