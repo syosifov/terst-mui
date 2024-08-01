@@ -1465,3 +1465,17 @@ export const data = {
   "skip": 0,
   "limit": 194
 }
+
+export const DEFAULT_PAGE_SIZE = 10;
+
+// Returns the data for a given page
+export const getPageData = (pageNumb, arr , pSize = DEFAULT_PAGE_SIZE) => {
+  const resp = arr.slice((pageNumb-1)*pSize,pageNumb*pSize)
+  return resp;
+}
+
+// Returns the number of pages
+export const nPages = (arr , pSize = DEFAULT_PAGE_SIZE) => {
+  const pages = Math.ceil(arr.length / pSize)
+  return pages;
+}

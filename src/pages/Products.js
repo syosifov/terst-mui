@@ -24,23 +24,27 @@ import Pagination from '@mui/material/Pagination';
 import { paperStyle } from "./styles";
 
 
-import { data } from "../db/data";
+import { data, getPageData, nPages, DEFAULT_PAGE_SIZE } from "../db/data";
 
 
 function Products() {
     const [products, setProducts] = useState(null)
     const navigate = useNavigate();
     const [page, setPage] = React.useState(1);
+    const [n_pages, setN_pages] = useState(null)
+    const [page_size, setPage_size] = useState(DEFAULT_PAGE_SIZE)
 
     const handleChange = (event, value) => {
-        
-
         setPage(value);
+        const arr = getPageData(value, data.products,page_size)
+        setProducts(arr)
     };
 
     useEffect(() => {
-        setProducts(data.products)
-        console.log(data)
+        const np = nPages(data.products, page_size)
+        setN_pages(np)
+        const arr = getPageData(page, data.products,page_size)
+        setProducts(arr)
     }, [])
 
     useEffect(() => {
@@ -63,8 +67,8 @@ function Products() {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {
-                                data.products.map((row) => {
+                            {   products &&
+                                products.map((row) => {
                                     return (
                                         <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
                                             <TableCell>
@@ -109,7 +113,9 @@ function Products() {
                 sx={{ minHeight: '20vh' }}
             >
                 <Grid item xs={3}>
-                    <Pagination count={10} page={page} onChange={handleChange} />
+                    {   n_pages &&
+                        <Pagination count={n_pages} page={page} onChange={handleChange} />
+                    }
                 </Grid>
             </Grid>
 
