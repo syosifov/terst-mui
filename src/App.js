@@ -1,6 +1,7 @@
 import Home from "./pages/Home";
 import ProductDetails from "./pages/ProductDetails";
-import Products from "./pages/Products";
+// import Products from "./pages/Products";
+import Products from "./pages/ProductsWithDataGrid";
 import PageNotFound from "./pages/PageNotFound"
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 
