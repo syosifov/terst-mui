@@ -4,13 +4,34 @@ import Box from '@mui/material/Box';
 
 import { DataGrid } from '@mui/x-data-grid';
 
-import { paperStyle } from "./styles";
+import {
+
+    Typography,
+    IconButton,
+} from "@mui/material";
+
 
 
 import { data, getPageData, nPages, DEFAULT_PAGE_SIZE } from "../db/data.js";
 
-console.log(data);
 
+
+const renderTitleCell = (data) => {
+    // console.log(data);
+    return (
+        <IconButton
+            color="primary"
+
+        >
+            <Typography>
+                {data.row.title}
+            </Typography>
+        </IconButton>
+    )
+
+}
+
+//product fields:
 // {
 //     "id": 1,
 //     "title": "Essence Mascara Lash Princess",
@@ -19,20 +40,22 @@ console.log(data);
 //     "rating": 4.94,
 //     "brand": "Essence"
 // }
-
 const columns = [
-    { field: 'id', headerName: 'ID', width: 90 },
+    // { field: 'id', headerName: 'ID', width: 90 },
     {
         field: 'title',
         headerName: 'Title',
         flex: 1,
         editable: true,
+        sortable: false,
+        renderCell: renderTitleCell
     },
     {
         field: 'category',
         headerName: 'Category',
         flex: 1,
         editable: true,
+        sortable: false
     },
     {
         field: 'price',
@@ -49,40 +72,47 @@ const columns = [
         editable: true,
     },
     {
-        field: 'fullName',
-        headerName: 'Full name',
-        description: 'This column has a value getter and is not sortable.',
+        field: 'brand',
+        headerName: 'Brand',
         sortable: false,
         flex: 1,
-        valueGetter: (value, row) => `${row.firstName || ''} ${row.lastName || ''}`,
+
     },
 ];
 
 
 function Products() {
 
-    const [products, setProducts] = useState(null)
+    const [products, setProducts] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
 
         setProducts(data.products)
     }, [])
 
+    const handleClick = (params, event, details) => {
+
+        navigate("/product-details/" + params.id);
+    }
 
     return (
-        <Box sx={{ height: 400, width: '100%' }}>
+        <Box sx={{ height: 700, width: '100%' }}>
             <DataGrid
+                onRowClick={handleClick}
+
                 rows={products}
                 columns={columns}
                 initialState={{
                     pagination: {
                         paginationModel: {
-                            pageSize: 5,
+                            pageSize: DEFAULT_PAGE_SIZE,
                         },
                     },
                 }}
-                pageSizeOptions={[5]}
-                checkboxSelection
+                
+                pageSizeOptions={[DEFAULT_PAGE_SIZE]}
+                // checkboxSelection
                 disableRowSelectionOnClick
             />
         </Box>
