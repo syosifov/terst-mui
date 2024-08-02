@@ -12,7 +12,7 @@ import {
 
 
 
-import { data, getPageData, nPages, DEFAULT_PAGE_SIZE } from "../db/data.js";
+import { data, getPageData, nPages, nProducts, DEFAULT_PAGE_SIZE, getSortedData } from "../db/data.js";
 
 
 
@@ -75,6 +75,7 @@ const columns = [
         field: 'brand',
         headerName: 'Brand',
         sortable: false,
+        editable: true,
         flex: 1,
 
     },
@@ -84,12 +85,58 @@ const columns = [
 function Products() {
 
     const [products, setProducts] = useState(null);
+
+
+    const [paginationModel, setPaginationModel] = useState({
+        page: 0,
+        pageSize: DEFAULT_PAGE_SIZE,
+    });
+    const [sortModel, setSortModel] = useState([]);
+
     const navigate = useNavigate();
+
+    const nRows = nProducts(data.products);
+
+    // useEffect(() => {
+
+    //     setProducts(data.products)
+    // }, [])
 
     useEffect(() => {
 
-        setProducts(data.products)
-    }, [])
+        // console.log("paginationModel");
+        // console.log(paginationModel);
+        // console.log("sortModal")
+        // console.log(sortModel);
+
+        if (sortModel[0]) {
+
+            const page = paginationModel.page + 1;
+            const sortOrder = sortModel[0].sort;
+            console.log("sort order");
+            console.log(sortOrder);
+            const sortField = sortModel[0].field;
+
+            const productsData = getSortedData(page, data.products, sortField, sortOrder, DEFAULT_PAGE_SIZE);
+
+            console.log("products data")
+            console.log(productsData)
+            setProducts(productsData);
+
+        } else {
+
+            const page = paginationModel.page + 1;
+            const productsData = getPageData(page, data.products, DEFAULT_PAGE_SIZE);
+            console.log("products data")
+            console.log(productsData)
+            setProducts(productsData);
+
+        }
+
+
+    }, [paginationModel, sortModel]);
+
+
 
     const handleClick = (params, event, details) => {
 
@@ -103,15 +150,15 @@ function Products() {
 
                 rows={products}
                 columns={columns}
-                initialState={{
-                    pagination: {
-                        paginationModel: {
-                            pageSize: DEFAULT_PAGE_SIZE,
-                        },
-                    },
-                }}
-                
+                sortingMode="server"
+                pagination
+                paginationMode="server"
                 pageSizeOptions={[DEFAULT_PAGE_SIZE]}
+                paginationModel={paginationModel}
+                rowCount={nRows} // Assumes API returns total count
+
+                onPaginationModelChange={setPaginationModel}
+                onSortModelChange={setSortModel}
                 // checkboxSelection
                 disableRowSelectionOnClick
             />
