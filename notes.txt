@@ -2,3 +2,5 @@ npm i material-react-table @mui/material @mui/icons-material @emotion/react @emo
 
 npm i react-router-dom
 
+npm i @mui/x-data-grid
+

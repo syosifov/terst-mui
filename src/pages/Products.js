@@ -47,11 +47,6 @@ function Products() {
         setProducts(arr)
     }, [])
 
-    useEffect(() => {
-        
-        //call api
-    }, [page])
-
     return (
         <>
             <Paper elevation={10} style={paperStyle} >
