@@ -93,48 +93,35 @@ function Products() {
     });
     const [sortModel, setSortModel] = useState([]);
 
+    const [filterModel, setFilterModel] = React.useState({ items: [] });
+
     const navigate = useNavigate();
 
     const nRows = nProducts(data.products);
 
-    // useEffect(() => {
-
-    //     setProducts(data.products)
-    // }, [])
 
     useEffect(() => {
 
-        // console.log("paginationModel");
-        // console.log(paginationModel);
-        // console.log("sortModal")
-        // console.log(sortModel);
 
-        if (sortModel[0]) {
-
-            const page = paginationModel.page + 1;
-            const sortOrder = sortModel[0].sort;
-            console.log("sort order");
-            console.log(sortOrder);
-            const sortField = sortModel[0].field;
-
-            const productsData = getSortedData(page, data.products, sortField, sortOrder, DEFAULT_PAGE_SIZE);
-
-            console.log("products data")
-            console.log(productsData)
-            setProducts(productsData);
-
-        } else {
-
-            const page = paginationModel.page + 1;
-            const productsData = getPageData(page, data.products, DEFAULT_PAGE_SIZE);
-            console.log("products data")
-            console.log(productsData)
-            setProducts(productsData);
-
-        }
+        console.log("sort model");
+        console.log(sortModel);
+        console.log("filter model");
+        console.log(filterModel);
 
 
-    }, [paginationModel, sortModel]);
+
+        const page = paginationModel.page + 1;
+
+
+        const productsData = getSortedData(page, data.products, DEFAULT_PAGE_SIZE, filterModel.items[0], sortModel[0]);
+
+
+        setProducts(productsData);
+
+
+
+
+    }, [paginationModel, sortModel, filterModel]);
 
 
 
@@ -150,15 +137,17 @@ function Products() {
 
                 rows={products}
                 columns={columns}
-                sortingMode="server"
                 pagination
+                sortingMode="server"
                 paginationMode="server"
+                filterMode="server"
                 pageSizeOptions={[DEFAULT_PAGE_SIZE]}
                 paginationModel={paginationModel}
                 rowCount={nRows} // Assumes API returns total count
 
                 onPaginationModelChange={setPaginationModel}
                 onSortModelChange={setSortModel}
+                onFilterModelChange={setFilterModel}
                 // checkboxSelection
                 disableRowSelectionOnClick
             />
