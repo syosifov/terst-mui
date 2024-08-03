@@ -1486,7 +1486,7 @@ export const nProducts = (arr) => {
     return nProducts;
 }
 
-const createSortComparator  = (sortField, sortOrder) => {
+const createSortComparator = (sortField, sortOrder) => {
 
 
     if (sortOrder == "asc") {
@@ -1501,7 +1501,7 @@ const createSortComparator  = (sortField, sortOrder) => {
 
         return (a, b) => {
 
-            return  b[sortField] - a[sortField]
+            return b[sortField] - a[sortField]
 
         }
 
@@ -1509,11 +1509,58 @@ const createSortComparator  = (sortField, sortOrder) => {
 
 }
 
-export const getSortedData = (pageNumb, arr, sortField, sortOrder, pSize) => {
+const filter = (arr, field, operator, value="") => {
 
-    const sortComparator = createSortComparator(sortField, sortOrder);
-    const sortedArray = arr.sort(sortComparator);
- 
+
+    switch (operator) {
+        case "equals":
+            return arr.filter((product) => product[field] == value);
+        case "contains":
+            console.log("case contains")
+            return arr.filter((product) => product[field].toLowerCase().includes(value.toLowerCase()));
+        default:
+            return arr
+    }
+
+
+
+}
+
+export const getSortedData = (pageNumb, arr, pSize, filterModel = null, sortModel = null) => {
+
+
+    let filteredArray = null;
+
+    if (filterModel) {
+
+        const { field, operator, value } = filterModel;
+
+        filteredArray = filter(arr, field, operator, value);
+
+    } else {
+
+        filteredArray = arr;
+    }
+
+
+
+    let sortedArray = null;
+
+    if (sortModel) {
+
+
+        const { sort: sortOrder, field: sortField } = sortModel;
+
+        const sortComparator = createSortComparator(sortField, sortOrder);
+        sortedArray = filteredArray.sort(sortComparator);
+    } else {
+
+        sortedArray = filteredArray;
+    }
+
+
+
+
     const resp = sortedArray.slice((pageNumb - 1) * pSize, pageNumb * pSize)
     return resp;
 }
