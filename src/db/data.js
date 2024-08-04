@@ -1559,8 +1559,6 @@ export const getSortedData = (pageNumb, arr, pSize, filterModel = null, sortMode
     }
 
 
-
-
     const resp = sortedArray.slice((pageNumb - 1) * pSize, pageNumb * pSize)
     return resp;
 }
