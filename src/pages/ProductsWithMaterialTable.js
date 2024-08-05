@@ -14,6 +14,8 @@ const Example = () => {
     const [isRefetching, setIsRefetching] = useState(false);
     const [rowCount, setRowCount] = useState(0);
 
+    const [minMaxPrice, setMinMaxPrice] = useState({ min: 0, max: 0, stepSize: 0 });
+
     //table state
     const [columnFilters, setColumnFilters] = useState([]);
     const [globalFilter, setGlobalFilter] = useState('');
@@ -69,6 +71,8 @@ const Example = () => {
 
     useEffect(() => {
 
+        // setIsLoading(true);
+        // setIsRefetching(true);
         const url = new URL(
             '/api/data', 'http://localhost:3000'
         );
@@ -82,8 +86,31 @@ const Example = () => {
         url.searchParams.set('sorting', JSON.stringify(sorting ?? []));
 
         const json = getProducts(url);
+        // console.log(json.data);
         setData(json.data);
+
         setRowCount(json.meta.totalRowCount);
+
+        let minMaxValue = json.meta.minMaxPrice;
+        if (!minMaxValue.min) {
+            minMaxValue.min = 0
+        }
+        if (!minMaxValue.max) {
+            minMaxValue.max = 0
+        }
+        if (!minMaxValue.stepSize) {
+            minMaxValue.stepSize = 1;
+        }
+
+        console.log("step size")
+        console.log(minMaxValue.stepSize)
+
+        setMinMaxPrice(minMaxValue);
+
+
+
+        // setIsRefetching(false);
+        // setIsLoading(false);
 
 
 
@@ -108,6 +135,24 @@ const Example = () => {
             {
                 accessorKey: 'price',
                 header: 'Price',
+                Cell: ({ cell }) =>
+                    cell.getValue().toLocaleString('en-US', {
+                        style: 'currency',
+                        currency: 'USD',
+                    }),
+                filterVariant: 'range-slider',
+                filterFn: 'betweenInclusive', // default (or between)
+                muiFilterSliderProps: {
+                    marks: true,
+                    max: minMaxPrice.max,
+                    min: minMaxPrice.min,
+                    step: minMaxPrice.stepSize ? minMaxPrice.stepSize : 100,
+                    valueLabelFormat: (value) =>
+                        value.toLocaleString('en-US', {
+                            style: 'currency',
+                            currency: 'USD',
+                        }),
+                },
             },
             {
                 accessorKey: 'rating',
@@ -119,7 +164,7 @@ const Example = () => {
             },
             //column definitions...
         ],
-        [],
+        [minMaxPrice],
     );
 
     const table = useMaterialReactTable({
@@ -142,6 +187,7 @@ const Example = () => {
         onPaginationChange: setPagination,
         onSortingChange: setSorting,
         rowCount,
+
         state: {
             columnFilters,
             globalFilter,
