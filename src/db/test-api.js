@@ -2,24 +2,66 @@ import { data as dbData } from "./data.js";
 
 const allProducts = dbData.products;
 
+const filterProductsByPrice = (products, minMaxValues) => {
 
+    const min = minMaxValues[0];
+    const max = minMaxValues[1];
+
+    return products.filter((product) => {
+
+        return product.price > min && product.price < max;
+
+    })
+
+}
 
 const filterProducts = (products, field, value) => {
 
     // console.log(typeof value);
 
-    return products.filter((product) => {
+    if (field == "price") {
 
-        let prop = product[field];
+        const min = value[0];
+        const max = value[1];
 
-        //some products don't have brand
-        if (!prop) {
-            prop = "";
-        }
+        return products.filter((product) => {
 
-        return prop.toString().toLowerCase().includes(value.toLowerCase());
 
-    })
+            return product.price > min && product.price < max;
+
+        })
+
+    } else {
+
+        return products.filter((product) => {
+
+            let prop = product[field];
+
+            //some products don't have brand
+            if (!prop) {
+                prop = "";
+            }
+
+            return prop.toString().toLowerCase().includes(value.toLowerCase());
+
+        })
+    }
+
+
+}
+
+const getMinMaxPrice = (products) => {
+
+    // console.log(typeof value);
+
+    const allPrices = products.map((p) => p.price);
+    let max = Math.max(...allPrices);
+    let min = Math.min(...allPrices);
+
+    const stepSize = (max - min) / 30;
+
+
+    return { min, max, stepSize };
 }
 
 const createSortComparator = (sortField, desc) => {
@@ -64,16 +106,32 @@ export const getProducts = (url) => {
     // console.log(filters);
     // console.log("globalFilter:");
     // console.log(globalFilter);
-    console.log("sorting:");
-    console.log(sorting);
+    // console.log("sorting:");
+    // console.log(sorting);
 
     let data = allProducts;
+
 
     filters.forEach((filter) => {
 
         const { id: field, value } = filter;
+        if (field == "price") {
+            return;
+        }
         data = filterProducts(data, field, value);
     })
+
+
+
+    const priceFilter = filters.find((filter) => filter.id == "price");
+    const minMaxPrice = getMinMaxPrice(data);
+    // console.log(filters)
+    if (priceFilter) {
+        
+        data = filterProductsByPrice(data, priceFilter.value);
+    }
+
+    
 
 
     const totalRowCount = data.length;
@@ -89,11 +147,14 @@ export const getProducts = (url) => {
     data = data.slice(start, start + size);
 
 
+    
+
 
     const response = {
         data,
         meta: {
-            totalRowCount
+            totalRowCount,
+            minMaxPrice
         }
     }
 
