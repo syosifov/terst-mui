@@ -69,6 +69,8 @@ const Example = () => {
 
     useEffect(() => {
 
+        // setIsLoading(true);
+        // setIsRefetching(true);
         const url = new URL(
             '/api/data', 'http://localhost:3000'
         );
@@ -82,8 +84,12 @@ const Example = () => {
         url.searchParams.set('sorting', JSON.stringify(sorting ?? []));
 
         const json = getProducts(url);
+        // console.log(json.data);
         setData(json.data);
+        
         setRowCount(json.meta.totalRowCount);
+        // setIsRefetching(false);
+        // setIsLoading(false);
 
 
 
