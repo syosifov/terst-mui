@@ -15,6 +15,8 @@ const Example = () => {
     const [rowCount, setRowCount] = useState(0);
 
     const [minMaxPrice, setMinMaxPrice] = useState({ min: 0, max: 0, stepSize: 0 });
+    const [categoriesList, setCategoriesList] = useState([]);
+    
 
     //table state
     const [columnFilters, setColumnFilters] = useState([]);
@@ -88,6 +90,7 @@ const Example = () => {
         const json = getProducts(url);
         // console.log(json.data);
         setData(json.data);
+        setCategoriesList(json.meta.categoriesList);
 
         setRowCount(json.meta.totalRowCount);
 
@@ -101,9 +104,6 @@ const Example = () => {
         if (!minMaxValue.stepSize) {
             minMaxValue.stepSize = 1;
         }
-
-        console.log("step size")
-        console.log(minMaxValue.stepSize)
 
         setMinMaxPrice(minMaxValue);
 
@@ -131,6 +131,8 @@ const Example = () => {
             {
                 accessorKey: 'category',
                 header: 'Category',
+                filterVariant: 'select',
+                filterSelectOptions: categoriesList, //custom options list
             },
             {
                 accessorKey: 'price',
@@ -164,7 +166,7 @@ const Example = () => {
             },
             //column definitions...
         ],
-        [minMaxPrice],
+        [minMaxPrice, categoriesList],
     );
 
     const table = useMaterialReactTable({
