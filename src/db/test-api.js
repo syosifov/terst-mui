@@ -15,37 +15,25 @@ const filterProductsByPrice = (products, minMaxValues) => {
 
 }
 
+const filterProductsByCategory = (products, value) => products.filter((p) => p.category == value);
+
 const filterProducts = (products, field, value) => {
 
     // console.log(typeof value);
 
-    if (field == "price") {
+    return products.filter((product) => {
 
-        const min = value[0];
-        const max = value[1];
+        let prop = product[field];
 
-        return products.filter((product) => {
+        //some products don't have brand
+        if (!prop) {
+            prop = "";
+        }
 
+        return prop.toString().toLowerCase().includes(value.toLowerCase());
 
-            return product.price > min && product.price < max;
+    })
 
-        })
-
-    } else {
-
-        return products.filter((product) => {
-
-            let prop = product[field];
-
-            //some products don't have brand
-            if (!prop) {
-                prop = "";
-            }
-
-            return prop.toString().toLowerCase().includes(value.toLowerCase());
-
-        })
-    }
 
 
 }
@@ -63,6 +51,14 @@ const getMinMaxPrice = (products) => {
 
     return { min, max, stepSize };
 }
+
+const getCategoriesList = (products) => {
+
+    let categoriesList = Array.from(new Set(products.map(p => p.category)));
+
+    return categoriesList;
+}
+
 
 const createSortComparator = (sortField, desc) => {
 
@@ -102,39 +98,85 @@ export const getProducts = (url) => {
     // console.log(start);
     // console.log("size:");
     // console.log(size);
-    // console.log("filters:");
-    // console.log(filters);
+    console.log("filters:");
+    console.log(filters);
     // console.log("globalFilter:");
     // console.log(globalFilter);
     // console.log("sorting:");
     // console.log(sorting);
 
     let data = allProducts;
+    let meta = {};
 
+
+    const priceFilter = filters.find((filter) => filter.id == "price");
+
+    if (priceFilter) {
+
+        let filteredData = [...data];
+
+        filters.forEach((filter) => {
+
+            const { id: field, value } = filter;
+            if (field == "price") {
+                return;
+            }
+            filteredData = filterProducts(filteredData, field, value);
+        })
+        const minMaxPrice = getMinMaxPrice(filteredData);
+        meta.minMaxPrice = minMaxPrice;
+
+    }
+
+    const categoryFilter = filters.find((filter) => filter.id == "category");
+
+    if (categoryFilter) {
+
+        let filteredData = [...data];
+
+        filters.forEach((filter) => {
+
+            const { id: field, value } = filter;
+            if (field == "category") {
+                return;
+            }
+            filteredData = filterProductsByCategory(filteredData, value);
+        })
+        const categoriesList = getCategoriesList(filteredData);
+        meta.categoriesList = categoriesList;
+
+    }
 
     filters.forEach((filter) => {
 
         const { id: field, value } = filter;
         if (field == "price") {
-            return;
+            
+            data = filterProductsByPrice(data, value);
+
+        }else if(field == "category"){
+
+            data = filterProductsByCategory(data, value);
+
+        }else{
+
+            data = filterProducts(data, field, value);
+
         }
-        data = filterProducts(data, field, value);
+        
     })
 
-
-
-    const priceFilter = filters.find((filter) => filter.id == "price");
-    const minMaxPrice = getMinMaxPrice(data);
-    // console.log(filters)
-    if (priceFilter) {
-        
-        data = filterProductsByPrice(data, priceFilter.value);
+    if(!priceFilter){
+        const minMaxPrice = getMinMaxPrice(data);
+        meta.minMaxPrice = minMaxPrice;
+    }
+    if(!categoryFilter){
+        const categoriesList = getCategoriesList(data);
+        meta.categoriesList = categoriesList;
     }
 
-    
-
-
     const totalRowCount = data.length;
+    meta.totalRowCount = totalRowCount;
 
     if (sorting[0]) {
 
@@ -146,16 +188,9 @@ export const getProducts = (url) => {
 
     data = data.slice(start, start + size);
 
-
-    
-
-
     const response = {
         data,
-        meta: {
-            totalRowCount,
-            minMaxPrice
-        }
+        meta
     }
 
     return response
