@@ -16,7 +16,8 @@ const Example = () => {
 
     const [minMaxPrice, setMinMaxPrice] = useState({ min: 0, max: 0, stepSize: 0 });
     const [categoriesList, setCategoriesList] = useState([]);
-    
+    const [brandsList, setBrandsList] = useState([]);
+
 
     //table state
     const [columnFilters, setColumnFilters] = useState([]);
@@ -91,6 +92,7 @@ const Example = () => {
         // console.log(json.data);
         setData(json.data);
         setCategoriesList(json.meta.categoriesList);
+        setBrandsList(json.meta.brandsList);
 
         setRowCount(json.meta.totalRowCount);
 
@@ -163,10 +165,12 @@ const Example = () => {
             {
                 accessorKey: 'brand',
                 header: 'Brand',
+                filterVariant: 'multi-select',
+                filterSelectOptions: brandsList, //custom options list
             },
             //column definitions...
         ],
-        [minMaxPrice, categoriesList],
+        [minMaxPrice, categoriesList, brandsList],
     );
 
     const table = useMaterialReactTable({

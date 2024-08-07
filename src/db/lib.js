@@ -16,6 +16,8 @@ const filterProductsByPrice = (products, minMaxValues) => {
 
 const filterProductsByCategory = (products, value) => products.filter((p) => p.category == value);
 
+const filterProductsByBrand = (products, brands) => products.filter((p) => p.brand && brands.includes(p.brand));
+
 const filterProducts = (products, field, value) => {
 
     // console.log(typeof value);
@@ -58,6 +60,13 @@ const getCategoriesList = (products) => {
     return categoriesList;
 }
 
+const getBrandsList = (products) => {
+
+    let brandsList = Array.from(new Set(products.map(p => p.brand)));
+
+    return brandsList;
+}
+
 
 const createSortComparator = (sortField, desc) => {
 
@@ -84,18 +93,23 @@ const createSortComparator = (sortField, desc) => {
 
 const getFilteredDataForField = (data, field, value) => {
 
-    if (field == "price") {
+    switch (field) {
+        case 'price':
 
-        return filterProductsByPrice(data, value);
+            return filterProductsByPrice(data, value);
 
-    } else if (field == "category") {
+        case 'category':
 
-        return filterProductsByCategory(data, value);
+            return filterProductsByCategory(data, value);
 
-    } else {
+        case 'brand':
 
-        return filterProducts(data, field, value);
+            return filterProductsByBrand(data, value);
 
+        default:
+
+            return filterProducts(data, field, value);
+            
     }
 }
 
@@ -137,7 +151,10 @@ export {
     filterProductsByCategory,
     filterProducts,
     getMinMaxPrice,
+
     getCategoriesList,
+    getBrandsList,
+
     createSortComparator,
     getFilteredDataForField,
     getFilteredDataForEveryField,

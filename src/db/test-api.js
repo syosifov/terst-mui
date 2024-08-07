@@ -4,6 +4,7 @@ import {
 
     getMinMaxPrice,
     getCategoriesList,
+    getBrandsList,
     createSortComparator,
     getFilteredDataForEveryField,
     getFilteredDataForEveryFieldExceptOne
@@ -60,8 +61,19 @@ export const getProducts = (url) => {
 
     }
 
+    const brandsFilter = filters.find((filter) => filter.id == "brand");
+    console.log(brandsFilter);
+
+    if (brandsFilter) {
+
+        let filteredData = getFilteredDataForEveryFieldExceptOne(data, filters, "brand");
+        const brandsList = getBrandsList(filteredData);
+        meta.brandsList = brandsList;
+
+    }
+
     data = getFilteredDataForEveryField(data, filters);
-    
+
 
     if (!priceFilter) {
         const minMaxPrice = getMinMaxPrice(data);
@@ -70,6 +82,10 @@ export const getProducts = (url) => {
     if (!categoryFilter) {
         const categoriesList = getCategoriesList(data);
         meta.categoriesList = categoriesList;
+    }
+    if (!brandsFilter) {
+        const brandsList = getBrandsList(data);
+        meta.brandsList = brandsList;
     }
 
     const totalRowCount = data.length;
