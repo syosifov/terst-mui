@@ -1,87 +1,18 @@
 import { data as dbData } from "./data.js";
 
+import {
+
+    getMinMaxPrice,
+    getCategoriesList,
+    createSortComparator,
+    getFilteredDataForEveryField,
+    getFilteredDataForEveryFieldExceptOne
+
+} from "./lib.js"
+
 const allProducts = dbData.products;
 
-const filterProductsByPrice = (products, minMaxValues) => {
 
-    const min = minMaxValues[0];
-    const max = minMaxValues[1];
-
-    return products.filter((product) => {
-
-        return product.price > min && product.price < max;
-
-    })
-
-}
-
-const filterProductsByCategory = (products, value) => products.filter((p) => p.category == value);
-
-const filterProducts = (products, field, value) => {
-
-    // console.log(typeof value);
-
-    return products.filter((product) => {
-
-        let prop = product[field];
-
-        //some products don't have brand
-        if (!prop) {
-            prop = "";
-        }
-
-        return prop.toString().toLowerCase().includes(value.toLowerCase());
-
-    })
-
-
-
-}
-
-const getMinMaxPrice = (products) => {
-
-    // console.log(typeof value);
-
-    const allPrices = products.map((p) => p.price);
-    let max = Math.max(...allPrices);
-    let min = Math.min(...allPrices);
-
-    const stepSize = (max - min) / 30;
-
-
-    return { min, max, stepSize };
-}
-
-const getCategoriesList = (products) => {
-
-    let categoriesList = Array.from(new Set(products.map(p => p.category)));
-
-    return categoriesList;
-}
-
-
-const createSortComparator = (sortField, desc) => {
-
-
-    if (!desc) {
-
-        return (a, b) => {
-
-            return a[sortField] - b[sortField];
-
-        }
-
-    } else {
-
-        return (a, b) => {
-
-            return b[sortField] - a[sortField]
-
-        }
-
-    }
-
-}
 
 
 //todo add different filters
@@ -98,8 +29,8 @@ export const getProducts = (url) => {
     // console.log(start);
     // console.log("size:");
     // console.log(size);
-    console.log("filters:");
-    console.log(filters);
+    // console.log("filters:");
+    // console.log(filters);
     // console.log("globalFilter:");
     // console.log(globalFilter);
     // console.log("sorting:");
@@ -113,16 +44,7 @@ export const getProducts = (url) => {
 
     if (priceFilter) {
 
-        let filteredData = [...data];
-
-        filters.forEach((filter) => {
-
-            const { id: field, value } = filter;
-            if (field == "price") {
-                return;
-            }
-            filteredData = filterProducts(filteredData, field, value);
-        })
+        let filteredData = getFilteredDataForEveryFieldExceptOne(data, filters, "price");
         const minMaxPrice = getMinMaxPrice(filteredData);
         meta.minMaxPrice = minMaxPrice;
 
@@ -132,45 +54,20 @@ export const getProducts = (url) => {
 
     if (categoryFilter) {
 
-        let filteredData = [...data];
-
-        filters.forEach((filter) => {
-
-            const { id: field, value } = filter;
-            if (field == "category") {
-                return;
-            }
-            filteredData = filterProductsByCategory(filteredData, value);
-        })
+        let filteredData = getFilteredDataForEveryFieldExceptOne(data, filters, "category");
         const categoriesList = getCategoriesList(filteredData);
         meta.categoriesList = categoriesList;
 
     }
 
-    filters.forEach((filter) => {
+    data = getFilteredDataForEveryField(data, filters);
+    
 
-        const { id: field, value } = filter;
-        if (field == "price") {
-            
-            data = filterProductsByPrice(data, value);
-
-        }else if(field == "category"){
-
-            data = filterProductsByCategory(data, value);
-
-        }else{
-
-            data = filterProducts(data, field, value);
-
-        }
-        
-    })
-
-    if(!priceFilter){
+    if (!priceFilter) {
         const minMaxPrice = getMinMaxPrice(data);
         meta.minMaxPrice = minMaxPrice;
     }
-    if(!categoryFilter){
+    if (!categoryFilter) {
         const categoriesList = getCategoriesList(data);
         meta.categoriesList = categoriesList;
     }
