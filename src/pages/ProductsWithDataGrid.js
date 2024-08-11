@@ -12,7 +12,13 @@ import {
 
 
 
-import { data, getPageData, nPages, nProducts, DEFAULT_PAGE_SIZE, getSortedData } from "../db/data.js";
+import {
+    data,
+    getNRows,
+    nProducts,
+    DEFAULT_PAGE_SIZE,
+    getSortedData
+} from "../db/data.js";
 
 
 
@@ -97,29 +103,20 @@ function Products() {
 
     const navigate = useNavigate();
 
-    const nRows = nProducts(data.products);
+    const [nRows, setNRows] = useState(nProducts(data.products));
 
 
     useEffect(() => {
-
 
         console.log("sort model");
         console.log(sortModel);
         console.log("filter model");
         console.log(filterModel);
 
-
-
         const page = paginationModel.page + 1;
-
-
         const productsData = getSortedData(page, data.products, DEFAULT_PAGE_SIZE, filterModel.items[0], sortModel[0]);
-
-
         setProducts(productsData);
-
-
-
+        setNRows(getNRows())
 
     }, [paginationModel, sortModel, filterModel]);
 
