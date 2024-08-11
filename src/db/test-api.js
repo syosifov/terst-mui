@@ -7,7 +7,8 @@ import {
     getBrandsList,
     createSortComparator,
     getFilteredDataForEveryField,
-    getFilteredDataForEveryFieldExceptOne
+    getFilteredDataForEveryFieldExceptOne,
+    getFilteredDataForGlobalFilter
 
 } from "./lib.js"
 
@@ -39,7 +40,10 @@ export const getProducts = (url) => {
 
     let unfilteredData = allProducts;
 
-    let filteredDataForAllFields = getFilteredDataForEveryField(allProducts, filters);
+    let filteredDataWithGlobalFilter = getFilteredDataForGlobalFilter(unfilteredData, globalFilter);
+
+    let filteredDataForAllFields = getFilteredDataForEveryField(unfilteredData, filters);
+    filteredDataForAllFields = getFilteredDataForGlobalFilter(filteredDataForAllFields, globalFilter);
 
     let meta = {};
 
@@ -48,7 +52,7 @@ export const getProducts = (url) => {
 
     if (priceFilter) {
 
-        let filteredData = getFilteredDataForEveryFieldExceptOne(unfilteredData, filters, "price");
+        let filteredData = getFilteredDataForEveryFieldExceptOne(filteredDataWithGlobalFilter, filters, "price");
         const minMaxPrice = getMinMaxPrice(filteredData);
         meta.minMaxPrice = minMaxPrice;
 
@@ -62,7 +66,7 @@ export const getProducts = (url) => {
 
     if (categoryFilter) {
 
-        let filteredData = getFilteredDataForEveryFieldExceptOne(unfilteredData, filters, "category");
+        let filteredData = getFilteredDataForEveryFieldExceptOne(filteredDataWithGlobalFilter, filters, "category");
         const categoriesList = getCategoriesList(filteredData);
         meta.categoriesList = categoriesList;
 
@@ -76,7 +80,7 @@ export const getProducts = (url) => {
 
     if (brandsFilter) {
 
-        let filteredData = getFilteredDataForEveryFieldExceptOne(unfilteredData, filters, "brand");
+        let filteredData = getFilteredDataForEveryFieldExceptOne(filteredDataWithGlobalFilter, filters, "brand");
         const brandsList = getBrandsList(filteredData);
         meta.brandsList = brandsList;
 
