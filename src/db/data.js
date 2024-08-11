@@ -1468,6 +1468,10 @@ export const data = {
 
 export const DEFAULT_PAGE_SIZE = 10;
 
+let nRows = data.products.length;
+
+export const getNRows = ()=> nRows;
+
 // Returns the data for a given page
 export const getPageData = (pageNumb, arr, pSize = DEFAULT_PAGE_SIZE) => {
     const resp = arr.slice((pageNumb - 1) * pSize, pageNumb * pSize)
@@ -1542,15 +1546,13 @@ export const getSortedData = (pageNumb, arr, pSize, filterModel = null, sortMode
         filteredArray = arr;
     }
 
-
+    nRows = filteredArray.length;
 
     let sortedArray = null;
 
     if (sortModel) {
 
-
         const { sort: sortOrder, field: sortField } = sortModel;
-
         const sortComparator = createSortComparator(sortField, sortOrder);
         sortedArray = filteredArray.sort(sortComparator);
     } else {
