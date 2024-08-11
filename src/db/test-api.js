@@ -44,6 +44,7 @@ export const getProducts = (url) => {
     let filteredDataWithGlobalFilter = getFilteredDataForGlobalFilter(unfilteredData, globalFilter);
 
     let filteredDataForAllFields = getFilteredDataForEveryField(unfilteredData, filters);
+    
     filteredDataForAllFields = getFilteredDataForGlobalFilter(filteredDataForAllFields, globalFilter);
 
     let meta = {};
