@@ -12,6 +12,7 @@ import {
 
 } from "./lib.js"
 
+
 const allProducts = dbData.products;
 
 
