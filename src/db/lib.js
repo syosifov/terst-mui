@@ -43,6 +43,12 @@ const getMinMaxPrice = (products) => {
 
     // console.log(typeof value);
 
+    if(!products.length){
+
+        console.log("no products")
+        return { min: 0, max: 0, stepSize: 0 };
+    }
+
     const allPrices = products.map((p) => p.price);
     let max = Math.max(...allPrices);
     let min = Math.min(...allPrices);
@@ -113,6 +119,27 @@ const getFilteredDataForField = (data, field, value) => {
     }
 }
 
+const getFilteredDataForGlobalFilter = (data, globalFilterString) => {
+
+    return data.filter(p => {
+        
+        for(let field in p){
+
+            let prop = p[field];
+            if(!prop){
+                return false;
+            }
+
+            if(prop.toString().toLowerCase().includes(globalFilterString.toLowerCase())){
+                return true;
+            }
+            
+        }
+
+        return false;
+    })
+}
+
 //apply all filters
 const getFilteredDataForEveryField = (data, filters) => {
 
@@ -158,6 +185,8 @@ export {
     createSortComparator,
     getFilteredDataForField,
     getFilteredDataForEveryField,
-    getFilteredDataForEveryFieldExceptOne
+    getFilteredDataForEveryFieldExceptOne,
+
+    getFilteredDataForGlobalFilter
 
 }
