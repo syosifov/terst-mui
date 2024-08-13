@@ -1,6 +1,6 @@
-npm i material-react-table @mui/material @mui/icons-material @emotion/react @emotion/styled
-
-npm i react-router-dom
-
-npm i @mui/x-data-grid
+install both client and server depencencies in two commands:
+first 
+npm install
+than
+npm run install-dependencies
 
