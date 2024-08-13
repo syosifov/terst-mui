@@ -1,0 +1,17 @@
+# This Utility requires VSCode Huachao Mao's REST Client Extension
+
+@server = http://localhost:3000
+
+###
+# Call this API Endpoint to populate the Products Table
+POST {{server}}/admin/add-products
+content-type: application/json
+
+{}
+
+
+###
+# Get all Products
+GET {{server}}/shop/products
+content-type: application/json
+
