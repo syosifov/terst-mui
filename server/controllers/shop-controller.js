@@ -10,38 +10,19 @@ const { Op, where } = require('sequelize');
 
 const Product = require("../models/product")
 
-const getMinMaxPrice = (products) => {
-
-    // console.log(typeof value);
-
-    if (!products.length) {
-
-        console.log("no products")
-        return { min: 0, max: 0, stepSize: 0 };
-    }
-
-    const allPrices = products.map((p) => p.price);
-    let max = Math.max(...allPrices);
-    let min = Math.min(...allPrices);
-
-    const stepSize = (max - min) / 30;
-
-
-    return { min, max, stepSize };
-}
-
 const createWhereClause = (filters, globalFilter) => {
 
     const brandsFilter = filters.find((filter) => filter.id == "brand");
     const categoryFilter = filters.find((filter) => filter.id == "category");
     const titleFilter = filters.find((filter) => filter.id == "title");
+    const priceFilter = filters.find((filter) => filter.id == "price");
 
     const titleFilterString = titleFilter ? titleFilter.value : "";
-    const categoryFilterString = categoryFilter ? categoryFilter.value : "";
-    const brandsFilterArray = brandsFilter ? brandsFilter.value : [];
 
     const filterClauese = {};
     if (categoryFilter) {
+
+        const categoryFilterString = categoryFilter.value;
 
         filterClauese.category = {
             [Op.eq]: categoryFilterString,
@@ -50,8 +31,18 @@ const createWhereClause = (filters, globalFilter) => {
 
     if (brandsFilter) {
 
+        const brandsFilterArray = brandsFilter.value;
+
         filterClauese.brand = { [Op.in]: brandsFilterArray }
     }
+
+    if (priceFilter) {
+
+        let min = Number(priceFilter.value[0]);
+        let max = Number(priceFilter.value[1]);
+        filterClauese.price = { [Op.between]: [min, max] }
+    }
+
 
     const whereClause = {
         [Op.or]: {
@@ -83,6 +74,33 @@ const createWhereClause = (filters, globalFilter) => {
 
 }
 
+const getUniqueFieldValues = async (field, filters, globalFilter) => {
+
+    const whereClause = createWhereClause(filters, globalFilter);
+    delete whereClause[Op.and][field];
+
+    const uniqueValuesList = await Product.findAll({
+        where: whereClause,
+        attributes: [field],
+        group: [field]
+    }).then(product =>
+        product.map(product => product[field])
+    );
+
+    return uniqueValuesList;
+}
+
+const getMinMaxFieldValues = async (field, filters, globalFilter) => {
+
+    const whereClause = createWhereClause(filters, globalFilter);
+    delete whereClause[Op.and][field];
+
+    const min = await Product.min(field, { where: whereClause });
+    const max = await Product.max(field, { where: whereClause });
+
+    return [min, max];
+}
+
 exports.getProducts = async (req, res, next) => {
 
     console.log(req.query);
@@ -100,58 +118,44 @@ exports.getProducts = async (req, res, next) => {
     // console.log(filters);
     // console.log("globalFilter:");
     // console.log(globalFilter);
-    // console.log("sorting:");
-    // console.log(sorting);
-
-    // console.log(data);
-    // TODO:
-    // add sorting
-    // add price min max filter
+    console.log("sorting:");
+    console.log(sorting);
 
     const whereClause = createWhereClause(filters, globalFilter);
+    let sortingClause = {};
+    if(sorting.length){
+        const sortBy = sorting[0].id;
+        const sortOrder = sorting[0].desc ? 'DESC' : 'ASC';
+        sortingClause.order = [[sortBy, sortOrder]];
+        console.log(sortingClause.order);
+    }
 
     let data = await Product.findAll({
+        ...sortingClause,
+
         where: whereClause,
         offset: start,
         limit: size
     }
     );
 
-
     const totalRowCount = await Product.count({
         where: whereClause,
     })
-
-    // data = data.slice(start, start + size);
 
     let meta = {}
 
     meta.totalRowCount = totalRowCount;
 
-    const minMaxPrice = getMinMaxPrice(data);
-    meta.minMaxPrice = minMaxPrice;
+    const priceRange = await getMinMaxFieldValues("price", filters, globalFilter);
 
-    const categoriesWhereClause = createWhereClause(filters, globalFilter);
-    delete categoriesWhereClause[Op.and]["category"];
+    meta.minMaxPrice = {
+        min: priceRange[0],
+        max: priceRange[1]
+    }
 
-    meta.categoriesList = await Product.findAll({
-        where: categoriesWhereClause,
-        attributes: ['category'],
-        group: ['category']
-    }).then(product =>
-        product.map(product => product.category)
-    );
-
-    const brandsWhereClause = createWhereClause(filters, globalFilter);
-    delete brandsWhereClause[Op.and]["brand"];
-
-    meta.brandsList = await Product.findAll({
-        where: brandsWhereClause,
-        attributes: ['brand'],
-        group: ['brand']
-    }).then(product =>
-        product.map(product => product.brand)
-    );
+    meta.categoriesList = await getUniqueFieldValues("category", filters, globalFilter);
+    meta.brandsList = await getUniqueFieldValues("brand", filters, globalFilter);
 
     const response = {
         data,

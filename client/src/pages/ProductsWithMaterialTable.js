@@ -4,7 +4,7 @@ import {
     useMaterialReactTable,
 } from 'material-react-table';
 
-import { getProducts } from '../db/test-api';
+const PRICE_STEP = 30;
 
 const Example = () => {
     //data and fetching state
@@ -59,15 +59,15 @@ const Example = () => {
                 setRowCount(json.meta.totalRowCount);
 
                 let minMaxValue = json.meta.minMaxPrice;
+
                 if (!minMaxValue.min) {
                     minMaxValue.min = 0
                 }
                 if (!minMaxValue.max) {
                     minMaxValue.max = 0
                 }
-                if (!minMaxValue.stepSize) {
-                    minMaxValue.stepSize = 1;
-                }
+
+                minMaxValue.stepSize = (minMaxValue.max - minMaxValue.min) / PRICE_STEP;
 
                 setMinMaxPrice(minMaxValue);
 
