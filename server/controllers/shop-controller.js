@@ -103,7 +103,6 @@ const getMinMaxFieldValues = async (field, filters, globalFilter) => {
 
 exports.getProducts = async (req, res, next) => {
 
-    console.log(req.query);
     const start = Number.parseInt(req.query["start"]);
     const size = Number.parseInt(req.query["size"]);
     const filters = JSON.parse(req.query["filters"]);
@@ -123,7 +122,7 @@ exports.getProducts = async (req, res, next) => {
 
     const whereClause = createWhereClause(filters, globalFilter);
     let sortingClause = {};
-    if(sorting.length){
+    if (sorting.length) {
         const sortBy = sorting[0].id;
         const sortOrder = sorting[0].desc ? 'DESC' : 'ASC';
         sortingClause.order = [[sortBy, sortOrder]];
@@ -163,4 +162,23 @@ exports.getProducts = async (req, res, next) => {
     }
 
     return res.status(StatusCodes.OK).json(response);
+}
+
+//for pdf export, to export selected products
+exports.getProductsById = async (req, res, next) => {
+
+    const idsArray = JSON.parse(req.query["ids"]);
+
+    let data = await Product.findAll({
+        attributes: ['title', 'category', 'price', 'rating', 'brand'],
+        where: {
+            id: {
+                [Op.in]: idsArray
+            }
+        }
+    }
+    );
+
+    return res.status(StatusCodes.OK).json(data);
+
 }

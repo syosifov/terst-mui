@@ -9,6 +9,8 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { jsPDF } from 'jspdf'; //or use your library of choice here
 import autoTable from 'jspdf-autotable';
 
+import { getProducts, getProductsById } from '../functions/product';
+
 
 const PRICE_STEP = 30;
 
@@ -40,7 +42,7 @@ const Example = () => {
     const [rowSelection, setRowSelection] = useState({});
 
     useEffect(() => {
-        console.info({ rowSelection }); //read your managed row selection state
+        // console.log({ rowSelection }); //read your managed row selection state
         // console.info(table.getState().rowSelection); //alternate way to get the row selection state
     }, [rowSelection]);
 
@@ -52,20 +54,8 @@ const Example = () => {
                 setIsRefetching(true);
             }
 
-            const url = new URL(
-                '/shop/products', 'http://localhost:8080'
-            );
-            url.searchParams.set(
-                'start',
-                `${pagination.pageIndex * pagination.pageSize}`,
-            );
-            url.searchParams.set('size', `${pagination.pageSize}`);
-            url.searchParams.set('filters', JSON.stringify(columnFilters ?? []));
-            url.searchParams.set('globalFilter', globalFilter ?? '');
-            url.searchParams.set('sorting', JSON.stringify(sorting ?? []));
-
             try {
-                const response = await fetch(url.href);
+                const response = await getProducts(pagination, columnFilters, globalFilter, sorting);
                 const json = await response.json();
 
                 setData(json.data);
@@ -75,13 +65,6 @@ const Example = () => {
                 setRowCount(json.meta.totalRowCount);
 
                 let minMaxValue = json.meta.minMaxPrice;
-
-                if (!minMaxValue.min) {
-                    minMaxValue.min = 0
-                }
-                if (!minMaxValue.max) {
-                    minMaxValue.max = 0
-                }
 
                 minMaxValue.stepSize = (minMaxValue.max - minMaxValue.min) / PRICE_STEP;
 
@@ -155,11 +138,33 @@ const Example = () => {
         [minMaxPrice, categoriesList, brandsList],
     );
 
-    const handleExportRows = (rows) => {
-        const doc = new jsPDF();
-        const tableData = rows.map((row) => Object.values(row.original));
+    //doesn't work with server side pagination because data gets lost
+    // const handleExportRows = (rows) => {
+    //     const doc = new jsPDF();
+    //     const tableData = rows.map((row) => Object.values(row.original));
+    //     const tableHeaders = columns.map((c) => c.header);
+
+    //     autoTable(doc, {
+    //         head: [tableHeaders],
+    //         body: tableData,
+    //     });
+
+    //     doc.save('mrt-pdf-example.pdf');
+    // };
+
+    const handleExportRows = async () => {
+        
+
+        // rowSelection = {1: true, 7: true}
+        const idsArray = Object.keys(rowSelection);
+
+        const response = await getProductsById(idsArray);
+        const products = await response.json();
+        
+        const tableData = products.map((row) => Object.values(row));
         const tableHeaders = columns.map((c) => c.header);
 
+        const doc = new jsPDF();
         autoTable(doc, {
             head: [tableHeaders],
             body: tableData,
