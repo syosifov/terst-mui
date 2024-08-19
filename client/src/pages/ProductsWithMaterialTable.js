@@ -4,7 +4,15 @@ import {
     useMaterialReactTable,
 } from 'material-react-table';
 
-import { getProducts } from '../db/test-api';
+import { Box, Button } from '@mui/material';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import { jsPDF } from 'jspdf'; //or use your library of choice here
+import autoTable from 'jspdf-autotable';
+
+import { getProducts, getProductsById } from '../functions/product';
+
+
+const PRICE_STEP = 30;
 
 const Example = () => {
     //data and fetching state
@@ -28,6 +36,16 @@ const Example = () => {
         pageSize: 10,
     });
 
+
+    //Use rowSelection state if you are using server-side pagination. 
+    //https://www.material-react-table.com/docs/guides/row-selection
+    const [rowSelection, setRowSelection] = useState({});
+
+    useEffect(() => {
+        // console.log({ rowSelection }); //read your managed row selection state
+        // console.info(table.getState().rowSelection); //alternate way to get the row selection state
+    }, [rowSelection]);
+
     useEffect(() => {
         const fetchData = async () => {
             if (!data.length) {
@@ -36,20 +54,8 @@ const Example = () => {
                 setIsRefetching(true);
             }
 
-            const url = new URL(
-                '/shop/products', 'http://localhost:8080'
-            );
-            url.searchParams.set(
-                'start',
-                `${pagination.pageIndex * pagination.pageSize}`,
-            );
-            url.searchParams.set('size', `${pagination.pageSize}`);
-            url.searchParams.set('filters', JSON.stringify(columnFilters ?? []));
-            url.searchParams.set('globalFilter', globalFilter ?? '');
-            url.searchParams.set('sorting', JSON.stringify(sorting ?? []));
-
             try {
-                const response = await fetch(url.href);
+                const response = await getProducts(pagination, columnFilters, globalFilter, sorting);
                 const json = await response.json();
 
                 setData(json.data);
@@ -59,15 +65,8 @@ const Example = () => {
                 setRowCount(json.meta.totalRowCount);
 
                 let minMaxValue = json.meta.minMaxPrice;
-                if (!minMaxValue.min) {
-                    minMaxValue.min = 0
-                }
-                if (!minMaxValue.max) {
-                    minMaxValue.max = 0
-                }
-                if (!minMaxValue.stepSize) {
-                    minMaxValue.stepSize = 1;
-                }
+
+                minMaxValue.stepSize = (minMaxValue.max - minMaxValue.min) / PRICE_STEP;
 
                 setMinMaxPrice(minMaxValue);
 
@@ -139,11 +138,97 @@ const Example = () => {
         [minMaxPrice, categoriesList, brandsList],
     );
 
+    //doesn't work with server side pagination because data gets lost
+    // const handleExportRows = (rows) => {
+    //     const doc = new jsPDF();
+    //     const tableData = rows.map((row) => Object.values(row.original));
+    //     const tableHeaders = columns.map((c) => c.header);
+
+    //     autoTable(doc, {
+    //         head: [tableHeaders],
+    //         body: tableData,
+    //     });
+
+    //     doc.save('mrt-pdf-example.pdf');
+    // };
+
+    const handleExportRows = async () => {
+        
+
+        // rowSelection = {1: true, 7: true}
+        const idsArray = Object.keys(rowSelection);
+
+        const response = await getProductsById(idsArray);
+        const products = await response.json();
+        
+        const tableData = products.map((row) => Object.values(row));
+        const tableHeaders = columns.map((c) => c.header);
+
+        const doc = new jsPDF();
+        autoTable(doc, {
+            head: [tableHeaders],
+            body: tableData,
+        });
+
+        doc.save('mrt-pdf-example.pdf');
+    };
+
     const table = useMaterialReactTable({
+
         columns,
         data,
-        // enableRowSelection: true,
-        getRowId: (row) => row.phoneNumber,
+
+        enableRowSelection: true,
+        getRowId: (row) => row.id, //give each row a more useful id
+        onRowSelectionChange: setRowSelection, //connect internal row selection state to your own
+        // columnFilterDisplayMode: 'popover',
+        paginationDisplayMode: 'pages',
+        positionToolbarAlertBanner: 'bottom',
+        renderTopToolbarCustomActions: ({ table }) => (
+            <Box
+                sx={{
+                    display: 'flex',
+                    gap: '16px',
+                    padding: '8px',
+                    flexWrap: 'wrap',
+                }}
+            >
+                {/* <Button
+                    disabled={table.getPrePaginationRowModel().rows.length === 0}
+                    //export all rows, including from the next page, (still respects filtering and sorting)
+                    onClick={() =>
+                        handleExportRows(table.getPrePaginationRowModel().rows)
+                    }
+                    startIcon={<FileDownloadIcon />}
+                >
+                    Export All Rows
+                </Button> */}
+                <Button
+                    disabled={table.getRowModel().rows.length === 0}
+                    //export all rows as seen on the screen (respects pagination, sorting, filtering, etc.)
+                    onClick={() => handleExportRows(table.getRowModel().rows)}
+                    startIcon={<FileDownloadIcon />}
+                >
+                    Export Page Rows
+                </Button>
+                <Button
+                    disabled={
+                        !table.getIsSomeRowsSelected() && !table.getIsAllRowsSelected()
+                    }
+
+                    //table.getSelectedRowModel().rows only really works with client-side pagination. 
+                    //Use rowSelection state if you are using server-side pagination. 
+                    //Row Models only contain rows based on the data you pass in.
+
+                    //TODO write server function to get products based on ID
+                    onClick={() => handleExportRows(table.getSelectedRowModel().rows)}
+                    startIcon={<FileDownloadIcon />}
+                >
+                    Export Selected Rows
+                </Button>
+            </Box>
+        ),
+
         initialState: { showColumnFilters: true },
         manualFiltering: true,
         manualPagination: true,
@@ -168,6 +253,7 @@ const Example = () => {
             showAlertBanner: isError,
             showProgressBars: isRefetching,
             sorting,
+            rowSelection //pass our managed row selection state to the table to use
         },
     });
 
