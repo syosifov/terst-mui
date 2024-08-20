@@ -7,6 +7,7 @@
 
 const { StatusCodes, ReasonPhrases } = require('http-status-codes');
 const { Op, where } = require('sequelize');
+const NO_BRAND_STRING = "no brand";
 
 const Product = require("../models/product")
 
@@ -31,9 +32,25 @@ const createWhereClause = (filters, globalFilter) => {
 
     if (brandsFilter) {
 
-        const brandsFilterArray = brandsFilter.value;
-
-        filterClauese.brand = { [Op.in]: brandsFilterArray }
+        let brandsFilterArray = brandsFilter.value;
+        const hasNullVal = brandsFilterArray.includes(NO_BRAND_STRING);
+        //Sequalize doesn't match a null brand with an empty string brand
+        brandsFilterArray = brandsFilterArray.filter((val) => val !== NO_BRAND_STRING);
+        
+        if(hasNullVal){
+            filterClauese.brand = { 
+                [Op.or]: [
+                    {[Op.in]: brandsFilterArray}, 
+                    {[Op.eq]: null}
+                ]
+                    
+                
+                
+            }
+        }else{
+            filterClauese.brand = { [Op.in]: brandsFilterArray }
+        }
+        
     }
 
     if (priceFilter) {
@@ -155,6 +172,10 @@ exports.getProducts = async (req, res, next) => {
 
     meta.categoriesList = await getUniqueFieldValues("category", filters, globalFilter);
     meta.brandsList = await getUniqueFieldValues("brand", filters, globalFilter);
+    //Some products have null value as brand
+    if(meta.brandsList.indexOf(null) !== -1){
+        meta.brandsList[meta.brandsList.indexOf(null)] = NO_BRAND_STRING;
+    }
 
     const response = {
         data,
