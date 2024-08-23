@@ -4,6 +4,10 @@ const sequelize = require('./utils/db');
 
 const app = express();
 const port = 8080;
+const ChatBot = require('./ChatBot/index');
+
+const chatBot = ChatBot();
+chatBot.start();
 
 app.get('/', (req, res) => {
     res.send('Hello World!');
