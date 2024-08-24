@@ -16,6 +16,7 @@
     "http-status-codes": "^2.3.0",
     "node-telegram-bot-api": "^0.66.0",
     "sequelize": "^6.37.3",
-    "sqlite3": "^5.1.7"
+    "sqlite3": "^5.1.7",
+    "stripe": "^16.8.0"
   }
 }
