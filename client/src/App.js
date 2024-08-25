@@ -5,7 +5,6 @@ import ProductsWithMaterialTable from "./pages/ProductsWithMaterialTable";
 import Products from "./pages/Products";
 import PageNotFound from "./pages/PageNotFound"
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import ShoppingCart from "./pages/ShoppingCart";
 import Payment from "./pages/Payment/Payment";
 import Completion from "./pages/Payment/Completion";
 
