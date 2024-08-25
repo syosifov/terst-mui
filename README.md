@@ -28,9 +28,13 @@ Stripe:
     very good tutorial:
     How to integrate Stripe Checkout with Node.js - https://www.youtube.com/watch?v=cheDHoEazPs
 
+    React Stripe.js and the Payment Element - https://www.youtube.com/watch?v=e-whXipfRvg
+    https://github.com/matthewling-stripe/react-stripe-payment-element/tree/main
+
     in /server .env file add:
         BASE_URL = http://localhost:3000
         STRIPE_SECRET_KEY = your secret key
+        STRIPE_PUBLISHABLE_KEY = your publishable key
 
 
 

@@ -8,7 +8,7 @@ function Home() {
       <Link to='/products'><h3>Explore our Products</h3></Link>
       <Link to='/products-datagrid'><h3>Explore our Products with Data Grid</h3></Link>
       <Link to='/products-materialtable'><h3>Explore our Products with Material React Table</h3></Link>
-      <Link to='/shopping-cart'><h3>Explore our Shopping Cart</h3></Link>
+      <Link to='/payment'><h3>Explore our Payment</h3></Link>
 
     </div>
   )
