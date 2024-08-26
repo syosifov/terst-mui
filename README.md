@@ -25,16 +25,20 @@ Telegram bot:
     4 - add BOT_ID = YOUR_AP_TOKEN_ID in /server .env file
 
 Stripe:
-    very good tutorial:
-    How to integrate Stripe Checkout with Node.js - https://www.youtube.com/watch?v=cheDHoEazPs
+    very good tutorials:
 
-    React Stripe.js and the Payment Element - https://www.youtube.com/watch?v=e-whXipfRvg
-    https://github.com/matthewling-stripe/react-stripe-payment-element/tree/main
+        How to integrate Stripe Checkout with Node.js - https://www.youtube.com/watch?v=cheDHoEazPs
 
-    in /server .env file add:
-        BASE_URL = http://localhost:3000
-        STRIPE_SECRET_KEY = your secret key
-        STRIPE_PUBLISHABLE_KEY = your publishable key
+        React Stripe.js and the Payment Element - https://www.youtube.com/watch?v=e-whXipfRvg
+        https://github.com/matthewling-stripe/react-stripe-payment-element/tree/main
+
+        How I integrated Stripe Payments in React App - 
+        https://judy-webdecoded.medium.com/how-i-integrated-stripe-payments-in-react-app-db24cd5c200b
+
+        in /server .env file add:
+            BASE_URL = http://localhost:3000
+            STRIPE_SECRET_KEY = your secret key
+            STRIPE_PUBLISHABLE_KEY = your publishable key
 
 
 
