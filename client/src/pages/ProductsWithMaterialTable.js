@@ -4,10 +4,18 @@ import {
     useMaterialReactTable,
 } from 'material-react-table';
 
+import { useNavigate } from "react-router-dom";
+
 import { Box, Button } from '@mui/material';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { jsPDF } from 'jspdf'; //or use your library of choice here
 import autoTable from 'jspdf-autotable';
+
+import {
+
+    Typography,
+    IconButton,
+} from "@mui/material";
 
 import { getProducts, getProductsById } from '../functions/product';
 
@@ -35,6 +43,8 @@ const Example = () => {
         pageIndex: 0,
         pageSize: 10,
     });
+
+    const navigate = useNavigate();
 
 
     //Use rowSelection state if you are using server-side pagination. 
@@ -94,6 +104,20 @@ const Example = () => {
             {
                 accessorKey: 'title',
                 header: 'Title',
+                Cell: ({ cell }) => {
+                    return (
+                        <IconButton onClick={() => {
+                            const id = cell.row.original.id;
+                            navigate("/product-details/" + id);
+                        }}
+                            color="primary"
+                        >
+                            <Typography>
+                                {cell.getValue()}
+                            </Typography>
+                        </IconButton>
+                    )
+                }
             },
             {
                 accessorKey: 'category',
@@ -153,14 +177,14 @@ const Example = () => {
     // };
 
     const handleExportRows = async () => {
-        
+
 
         // rowSelection = {1: true, 7: true}
         const idsArray = Object.keys(rowSelection);
 
         const response = await getProductsById(idsArray);
         const products = await response.json();
-        
+
         const tableData = products.map((row) => Object.values(row));
         const tableHeaders = columns.map((c) => c.header);
 
