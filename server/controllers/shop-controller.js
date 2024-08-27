@@ -11,6 +11,8 @@ const NO_BRAND_STRING = "no brand";
 
 const Product = require("../models/product")
 
+const {mssg} = require("../ChatBot/index");
+
 const createWhereClause = (filters, globalFilter) => {
 
     const brandsFilter = filters.find((filter) => filter.id == "brand");
@@ -202,4 +204,12 @@ exports.getProductsById = async (req, res, next) => {
 
     return res.status(StatusCodes.OK).json(data);
 
+}
+
+// POST /shop/bot/message
+exports.botMessage = async (req,res) => {
+    const chatId = req.body.chatId;
+    const txt = req.body.txt;
+    mssg(chatId,txt)
+    res.status(204).send();
 }

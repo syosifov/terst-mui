@@ -1,6 +1,6 @@
 # This Utility requires VSCode Huachao Mao's REST Client Extension
 
-@server = http://localhost:3000
+@server = http://localhost:8080
 
 ###
 # Call this API Endpoint to populate the Products Table
@@ -15,3 +15,11 @@ content-type: application/json
 GET {{server}}/shop/products
 content-type: application/json
 
+###
+POST {{server}}/shop/bot/message
+content-type: application/json
+
+{
+    "chatId": 5304298031,
+    "txt": "abcd"
+}

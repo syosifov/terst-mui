@@ -4,10 +4,9 @@ const sequelize = require('./utils/db');
 
 const app = express();
 const port = 8080;
-const ChatBot = require('./ChatBot/index');
+const {start, mssg} = require('./ChatBot/index');
 
-const chatBot = ChatBot();
-chatBot.start();
+start();
 
 app.get('/', (req, res) => {
     res.send('Hello World!');
@@ -27,7 +26,6 @@ const shopRoutes = require('./routes/shop-routes');
 
 app.use('/admin', adminRoutes);
 app.use('/shop', shopRoutes);
-
 
 sequelize
     .sync()

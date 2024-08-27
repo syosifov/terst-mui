@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.get('/products', shopController.getProducts);
 router.get('/products-by-id', shopController.getProductsById);
+router.post('/bot/message', shopController.botMessage)
 router.use('/payment', paymentRoutes);
 
 module.exports = router;
