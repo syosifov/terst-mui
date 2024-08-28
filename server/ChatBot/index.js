@@ -26,10 +26,27 @@ const start = () => {
 
 }
 
-const mssg = (chat_Id,txt) => {
-    bot.sendMessage(chat_Id,txt)
+// https://core.telegram.org/bots/api#formatting-options
+const mssg = (chatId, txt, type=null) => {
+
+    if(type == 'html'){
+
+        bot.sendMessage(chatId, txt, { parse_mode: 'HTML' });
+
+    }else if(type == "photo"){
+
+        bot.sendPhoto(chatId, txt);
+
+    }else{
+
+        bot.sendMessage(chatId, txt);
+
+    }
+    
+
+
 }
 
 
-module.exports = {start, mssg};
+module.exports = { start, mssg };
 

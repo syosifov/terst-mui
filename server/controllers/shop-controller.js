@@ -11,7 +11,7 @@ const NO_BRAND_STRING = "no brand";
 
 const Product = require("../models/product")
 
-const {mssg} = require("../ChatBot/index");
+const { mssg } = require("../ChatBot/index");
 
 const createWhereClause = (filters, globalFilter) => {
 
@@ -38,21 +38,21 @@ const createWhereClause = (filters, globalFilter) => {
         const hasNullVal = brandsFilterArray.includes(NO_BRAND_STRING);
         //Sequalize doesn't match a null brand with an empty string brand
         brandsFilterArray = brandsFilterArray.filter((val) => val !== NO_BRAND_STRING);
-        
-        if(hasNullVal){
-            filterClauese.brand = { 
+
+        if (hasNullVal) {
+            filterClauese.brand = {
                 [Op.or]: [
-                    {[Op.in]: brandsFilterArray}, 
-                    {[Op.eq]: null}
+                    { [Op.in]: brandsFilterArray },
+                    { [Op.eq]: null }
                 ]
-                    
-                
-                
+
+
+
             }
-        }else{
+        } else {
             filterClauese.brand = { [Op.in]: brandsFilterArray }
         }
-        
+
     }
 
     if (priceFilter) {
@@ -175,7 +175,7 @@ exports.getProducts = async (req, res, next) => {
     meta.categoriesList = await getUniqueFieldValues("category", filters, globalFilter);
     meta.brandsList = await getUniqueFieldValues("brand", filters, globalFilter);
     //Some products have null value as brand
-    if(meta.brandsList.indexOf(null) !== -1){
+    if (meta.brandsList.indexOf(null) !== -1) {
         meta.brandsList[meta.brandsList.indexOf(null)] = NO_BRAND_STRING;
     }
 
@@ -207,9 +207,10 @@ exports.getProductsById = async (req, res, next) => {
 }
 
 // POST /shop/bot/message
-exports.botMessage = async (req,res) => {
+exports.botMessage = async (req, res) => {
     const chatId = req.body.chatId;
     const txt = req.body.txt;
-    mssg(chatId,txt)
+    const type = req.body.type;
+    mssg(chatId, txt, type);
     res.status(204).send();
 }
