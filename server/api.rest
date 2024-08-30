@@ -52,3 +52,18 @@ content-type: application/json
     "type": "html"
 }
 
+###
+GET {{server}}/shop/generate-qr?url=https://google.bg
+
+###
+POST {{server}}/shop/bot/message
+content-type: application/json
+
+{
+    "chatId": 5304298031, "txt": "https://google.bg",
+    "type": "qr-code"
+}
+
+
+
+
