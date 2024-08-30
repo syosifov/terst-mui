@@ -1,4 +1,5 @@
 require('dotenv').config();
+const QRCode = require('qrcode');
 const token = process.env.BOT_ID;
 
 
@@ -9,10 +10,10 @@ const TelegramBot = require('node-telegram-bot-api');
 const bot = new TelegramBot(token, { polling: true });
 
 const start = () => {
-
+    
     console.log("bot listening")
 
-    bot.on('message', (msg) => {
+    bot.on('message', async (msg) => {
         const chatId = msg.chat.id;
         const messageText = msg.text;
 
@@ -22,27 +23,51 @@ const start = () => {
         if (messageText === '/start') {
             bot.sendMessage(chatId, 'Welcome to the bot!');
         }
+
+        if (messageText.startsWith("qr-")) {
+
+            const link = messageText.substring(3, messageText.length);
+            const qrCodeImage = await QRCode.toFile("./ChatBot/img.png", link, {width: 600});
+            //todo generate unique filename for each image and delete the file after sending it
+            //because the wrong file could be sent to the wrong client
+            bot.sendPhoto(chatId, "./ChatBot/img.png");
+            const html = "<a href=\"https://dnschecker.org/qr-code-scanner.php\">test your qr code</a>"
+            bot.sendMessage(chatId, html, { parse_mode: 'HTML' });
+            
+
+
+
+        }
     });
 
 }
 
 // https://core.telegram.org/bots/api#formatting-options
-const mssg = (chatId, txt, type=null) => {
+const mssg = async (chatId, txt, type = null) => {
 
-    if(type == 'html'){
+
+    if (type == 'html') {
 
         bot.sendMessage(chatId, txt, { parse_mode: 'HTML' });
 
-    }else if(type == "photo"){
+    } else if (type == "photo") {
 
         bot.sendPhoto(chatId, txt);
 
-    }else{
+    } else if (type == "qr-code") {
+
+        const url = txt;
+        //todo generate unique filename for each image and delete the file after sending it
+        //because the wrong file could be sent to the wrong client
+        const qrCodeImage = await QRCode.toFile("./ChatBot/img.png", url, {width: 600});
+        bot.sendPhoto(chatId, "./ChatBot/img.png");
+
+
+    } else {
 
         bot.sendMessage(chatId, txt);
-
     }
-    
+
 
 
 }
