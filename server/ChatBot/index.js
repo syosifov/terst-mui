@@ -27,7 +27,7 @@ const start = () => {
         if (messageText.startsWith("qr-")) {
 
             const link = messageText.substring(3, messageText.length);
-            const qrCodeImage = await QRCode.toFile("./ChatBot/img.png", link);
+            const qrCodeImage = await QRCode.toFile("./ChatBot/img.png", link, {width: 600});
             //todo generate unique filename for each image and delete the file after sending it
             //because the wrong file could be sent to the wrong client
             bot.sendPhoto(chatId, "./ChatBot/img.png");
@@ -59,7 +59,7 @@ const mssg = async (chatId, txt, type = null) => {
         const url = txt;
         //todo generate unique filename for each image and delete the file after sending it
         //because the wrong file could be sent to the wrong client
-        const qrCodeImage = await QRCode.toFile("./ChatBot/img.png", url);
+        const qrCodeImage = await QRCode.toFile("./ChatBot/img.png", url, {width: 600});
         bot.sendPhoto(chatId, "./ChatBot/img.png");
 
 
