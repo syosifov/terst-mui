@@ -9,6 +9,7 @@ function Home() {
       <Link to='/products-datagrid'><h3>Explore our Products with Data Grid</h3></Link>
       <Link to='/products-materialtable'><h3>Explore our Products with Material React Table</h3></Link>
       <Link to='/payment'><h3>Explore our Payment</h3></Link>
+      <Link to='/qr-code'><h3>Explore our QR code generator</h3></Link>
 
     </div>
   )
