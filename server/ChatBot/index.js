@@ -1,7 +1,7 @@
 require('dotenv').config();
 const QRCode = require('qrcode');
 const token = process.env.BOT_ID;
-const { createCanvas } = require("canvas");
+const { Buffer } = require('node:buffer');
 
 const TelegramBot = require('node-telegram-bot-api');
 
@@ -11,11 +11,20 @@ const bot = new TelegramBot(token, { polling: true });
 
 const sendQrCode = async (chatId, link) => {
 
-    const canvas = createCanvas(600, 600);
+    // const buffer = canvas.toBuffer();
+    // https://github.com/Automattic/node-canvas?tab=readme-ov-file#canvastobuffer
+    // Canvas#toBuffer() -  Creates a Buffer object representing the image contained in the canvas.
 
-    await QRCode.toCanvas(canvas, link, { width: 600 })
-    const buffer = canvas.toBuffer();
-    // send picture
+    // https://nodejs.org/api/buffer.html
+
+    const datURL = await QRCode.toDataURL(link, { width: 600 });
+    var regex = /^data:.+\/(.+);base64,(.*)$/;
+
+    var matches = datURL.match(regex);
+    var ext = matches[1];
+    var data = matches[2];
+
+    var buffer = Buffer.from(data, 'base64');
     bot.sendPhoto(chatId, buffer);
 }
 
