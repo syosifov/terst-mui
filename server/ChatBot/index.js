@@ -1,7 +1,7 @@
 require('dotenv').config();
 const QRCode = require('qrcode');
 const token = process.env.BOT_ID;
-
+const { createCanvas } = require("canvas");
 
 const TelegramBot = require('node-telegram-bot-api');
 
@@ -9,8 +9,18 @@ const TelegramBot = require('node-telegram-bot-api');
 
 const bot = new TelegramBot(token, { polling: true });
 
+const sendQrCode = async (chatId, link) => {
+
+    const canvas = createCanvas(600, 600);
+
+    await QRCode.toCanvas(canvas, link, { width: 600 })
+    const buffer = canvas.toBuffer();
+    // send picture
+    bot.sendPhoto(chatId, buffer);
+}
+
 const start = () => {
-    
+
     console.log("bot listening")
 
     bot.on('message', async (msg) => {
@@ -26,15 +36,17 @@ const start = () => {
 
         if (messageText.startsWith("qr-")) {
 
-            const link = messageText.substring(3, messageText.length);
-            const qrCodeImage = await QRCode.toFile("./ChatBot/img.png", link, {width: 600});
-            //todo generate unique filename for each image and delete the file after sending it
-            //because the wrong file could be sent to the wrong client
-            bot.sendPhoto(chatId, "./ChatBot/img.png");
-            const html = "<a href=\"https://dnschecker.org/qr-code-scanner.php\">test your qr code</a>"
-            bot.sendMessage(chatId, html, { parse_mode: 'HTML' });
-            
+            // const link = messageText.substring(3, messageText.length);
+            // const qrCodeImage = await QRCode.toFile("./ChatBot/img.png", link, {width: 600});
+            // //todo generate unique filename for each image and delete the file after sending it
+            // //because the wrong file could be sent to the wrong client
+            // bot.sendPhoto(chatId, "./ChatBot/img.png");
+            // const html = "<a href=\"https://dnschecker.org/qr-code-scanner.php\">test your qr code</a>"
+            // bot.sendMessage(chatId, html, { parse_mode: 'HTML' });
 
+
+            const link = messageText.substring(3, messageText.length);
+            sendQrCode(chatId, link);
 
 
         }
@@ -57,10 +69,7 @@ const mssg = async (chatId, txt, type = null) => {
     } else if (type == "qr-code") {
 
         const url = txt;
-        //todo generate unique filename for each image and delete the file after sending it
-        //because the wrong file could be sent to the wrong client
-        const qrCodeImage = await QRCode.toFile("./ChatBot/img.png", url, {width: 600});
-        bot.sendPhoto(chatId, "./ChatBot/img.png");
+        sendQrCode(chatId, url);
 
 
     } else {
