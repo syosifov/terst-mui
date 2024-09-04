@@ -1,7 +1,7 @@
 require('dotenv').config();
 const QRCode = require('qrcode');
 const token = process.env.BOT_ID;
-const { Buffer } = require('node:buffer');
+// const { Buffer } = require('node:buffer');
 
 const TelegramBot = require('node-telegram-bot-api');
 
@@ -11,20 +11,10 @@ const bot = new TelegramBot(token, { polling: true });
 
 const sendQrCode = async (chatId, link) => {
 
-    // const buffer = canvas.toBuffer();
-    // https://github.com/Automattic/node-canvas?tab=readme-ov-file#canvastobuffer
-    // Canvas#toBuffer() -  Creates a Buffer object representing the image contained in the canvas.
+    const dataUrl = await QRCode.toDataURL(link, { width: 600 });
+    // console.log(dataUrl);
 
-    // https://nodejs.org/api/buffer.html
-
-    const datURL = await QRCode.toDataURL(link, { width: 600 });
-    var regex = /^data:.+\/(.+);base64,(.*)$/;
-
-    var matches = datURL.match(regex);
-    var ext = matches[1];
-    var data = matches[2];
-
-    var buffer = Buffer.from(data, 'base64');
+    const buffer = Buffer.from(dataUrl.split(",")[1], 'base64');
     bot.sendPhoto(chatId, buffer);
 }
 
@@ -44,15 +34,6 @@ const start = () => {
         }
 
         if (messageText.startsWith("qr-")) {
-
-            // const link = messageText.substring(3, messageText.length);
-            // const qrCodeImage = await QRCode.toFile("./ChatBot/img.png", link, {width: 600});
-            // //todo generate unique filename for each image and delete the file after sending it
-            // //because the wrong file could be sent to the wrong client
-            // bot.sendPhoto(chatId, "./ChatBot/img.png");
-            // const html = "<a href=\"https://dnschecker.org/qr-code-scanner.php\">test your qr code</a>"
-            // bot.sendMessage(chatId, html, { parse_mode: 'HTML' });
-
 
             const link = messageText.substring(3, messageText.length);
             sendQrCode(chatId, link);
